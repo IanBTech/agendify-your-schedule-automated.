@@ -3,7 +3,9 @@ import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const profissoes = [
   "Cabeleireiro(a)", "Barbeiro(a)", "Manicure", "Esteticista", "Massagista",
@@ -16,10 +18,32 @@ export default function CadastroPage() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [profissao, setProfissao] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profissao) { toast.error("Selecione sua profissão"); return; }
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({
+      email,
+      password: senha,
+      options: {
+        data: { nome, profissao },
+        emailRedirectTo: window.location.origin,
+      },
+    });
+    setLoading(false);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Conta criada! Verifique seu email para confirmar.");
+      navigate("/dashboard");
+    }
+  };
 
   return (
     <div className="min-h-screen flex">
-      {/* Left - Branding */}
       <div className="hidden lg:flex lg:w-1/2 gradient-dark items-center justify-center p-12">
         <div className="max-w-md text-center">
           <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-8 shadow-glow">
@@ -34,7 +58,6 @@ export default function CadastroPage() {
         </div>
       </div>
 
-      {/* Right - Form */}
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
           <div className="flex items-center gap-2 mb-8 lg:hidden">
@@ -49,18 +72,18 @@ export default function CadastroPage() {
             Preencha os dados e comece seu teste grátis.
           </p>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4" onSubmit={handleSignup}>
             <div className="space-y-2">
               <Label htmlFor="nome">Nome completo</Label>
-              <Input id="nome" placeholder="Seu nome" value={nome} onChange={(e) => setNome(e.target.value)} />
+              <Input id="nome" placeholder="Seu nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="seu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input id="email" type="email" placeholder="seu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="senha">Senha</Label>
-              <Input id="senha" type="password" placeholder="••••••••" value={senha} onChange={(e) => setSenha(e.target.value)} />
+              <Input id="senha" type="password" placeholder="Mínimo 6 caracteres" value={senha} onChange={(e) => setSenha(e.target.value)} required minLength={6} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="profissao">Profissão</Label>
@@ -69,6 +92,7 @@ export default function CadastroPage() {
                 value={profissao}
                 onChange={(e) => setProfissao(e.target.value)}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                required
               >
                 <option value="">Selecione sua profissão</option>
                 {profissoes.map((p) => (
@@ -76,8 +100,8 @@ export default function CadastroPage() {
                 ))}
               </select>
             </div>
-            <Button variant="hero" className="w-full" type="submit">
-              Criar conta grátis
+            <Button variant="hero" className="w-full" type="submit" disabled={loading}>
+              {loading ? "Criando conta..." : "Criar conta grátis"}
             </Button>
           </form>
 
