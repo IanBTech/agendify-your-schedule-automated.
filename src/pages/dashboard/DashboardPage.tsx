@@ -1,27 +1,77 @@
-import { BarChart3, Calendar, Clock, Users, TrendingUp } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { BarChart3, Calendar, Clock, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-const stats = [
-  { label: "Atendimentos hoje", value: "0", icon: Clock, change: "" },
-  { label: "Esta semana", value: "0", icon: Calendar, change: "" },
-  { label: "Este mês", value: "0", icon: BarChart3, change: "" },
-  { label: "Total de clientes", value: "0", icon: Users, change: "" },
-];
+import { differenceInDays, format } from "date-fns";
 
 export default function DashboardPage() {
+  const { profile } = useAuth();
+
+  const { data: agendamentos } = useQuery({
+    queryKey: ["agendamentos", profile?.id],
+    enabled: !!profile,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("agendamentos")
+        .select("*, servicos(nome_servico, preco)")
+        .eq("profissional_id", profile!.id)
+        .order("data", { ascending: true });
+      return data ?? [];
+    },
+  });
+
+  const { data: clientesCount } = useQuery({
+    queryKey: ["clientes-count", profile?.id],
+    enabled: !!profile,
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("clientes")
+        .select("*", { count: "exact", head: true })
+        .eq("profissional_id", profile!.id);
+      return count ?? 0;
+    },
+  });
+
+  const today = format(new Date(), "yyyy-MM-dd");
+  const todayCount = agendamentos?.filter((a) => a.data === today && a.status !== "cancelado").length ?? 0;
+  const weekCount = agendamentos?.filter((a) => {
+    const d = new Date(a.data);
+    const now = new Date();
+    const diffDays = differenceInDays(d, now);
+    return diffDays >= 0 && diffDays < 7 && a.status !== "cancelado";
+  }).length ?? 0;
+  const monthCount = agendamentos?.filter((a) => {
+    const d = new Date(a.data);
+    const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && a.status !== "cancelado";
+  }).length ?? 0;
+
+  const diasRestantes = profile ? Math.max(0, differenceInDays(new Date(profile.data_expiracao_teste), new Date())) : 0;
+
+  const stats = [
+    { label: "Atendimentos hoje", value: String(todayCount), icon: Clock },
+    { label: "Esta semana", value: String(weekCount), icon: Calendar },
+    { label: "Este mês", value: String(monthCount), icon: BarChart3 },
+    { label: "Total de clientes", value: String(clientesCount ?? 0), icon: Users },
+  ];
+
+  const nextAppointments = agendamentos
+    ?.filter((a) => a.data >= today && a.status === "confirmado")
+    .slice(0, 5) ?? [];
+
   return (
     <div className="space-y-6">
-      {/* Trial banner */}
-      <div className="rounded-xl gradient-primary p-4 flex items-center justify-between">
-        <div>
+      {profile?.plano === "teste" && (
+        <div className="rounded-xl gradient-primary p-4">
           <p className="text-primary-foreground font-semibold text-sm">
             🎉 Você está no período de teste gratuito
           </p>
           <p className="text-primary-foreground/70 text-xs mt-0.5">
-            Restam 7 dias. Aproveite todas as funcionalidades.
+            Restam {diasRestantes} dias. Aproveite todas as funcionalidades.
           </p>
         </div>
-      </div>
+      )}
 
       <h1 className="font-display text-2xl font-bold">Dashboard</h1>
 
@@ -44,13 +94,30 @@ export default function DashboardPage() {
           <CardTitle className="text-lg font-display">Próximos agendamentos</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <Calendar className="h-12 w-12 text-muted-foreground/30 mb-4" />
-            <p className="text-muted-foreground text-sm">Nenhum agendamento ainda.</p>
-            <p className="text-muted-foreground/60 text-xs mt-1">
-              Configure seus serviços e compartilhe seu link.
-            </p>
-          </div>
+          {nextAppointments.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Calendar className="h-12 w-12 text-muted-foreground/30 mb-4" />
+              <p className="text-muted-foreground text-sm">Nenhum agendamento ainda.</p>
+              <p className="text-muted-foreground/60 text-xs mt-1">
+                Configure seus serviços e compartilhe seu link.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {nextAppointments.map((a) => (
+                <div key={a.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                  <div>
+                    <p className="font-medium text-sm">{a.cliente_nome || "Cliente"}</p>
+                    <p className="text-xs text-muted-foreground">{(a as any).servicos?.nome_servico}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium">{format(new Date(a.data), "dd/MM")}</p>
+                    <p className="text-xs text-muted-foreground">{a.horario}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
