@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function IndicacoesPage() {
-  const codigoConvite = "AGDFY-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-  const link = `agendify.com/convite/${codigoConvite}`;
+  const { profile } = useAuth();
+  const link = `agendify.com/convite/${profile?.codigo_indicacao ?? ""}`;
 
   const copiar = () => {
     navigator.clipboard.writeText(link);
@@ -43,7 +44,7 @@ export default function IndicacoesPage() {
         </Card>
         <Card className="shadow-card">
           <CardContent className="p-4 text-center">
-            <p className="font-display text-3xl font-bold">0</p>
+            <p className="font-display text-3xl font-bold">{profile?.meses_bonus ?? 0}</p>
             <p className="text-xs text-muted-foreground mt-1">Meses grátis</p>
           </CardContent>
         </Card>

@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import CadastroPage from "./pages/CadastroPage";
@@ -26,23 +28,25 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/cadastro" element={<CadastroPage />} />
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<DashboardPage />} />
-            <Route path="agenda" element={<AgendaPage />} />
-            <Route path="calendario" element={<CalendarioPage />} />
-            <Route path="servicos" element={<ServicosPage />} />
-            <Route path="disponibilidade" element={<DisponibilidadePage />} />
-            <Route path="clientes" element={<ClientesPage />} />
-            <Route path="indicacoes" element={<IndicacoesPage />} />
-            <Route path="planos" element={<PlanosPage />} />
-            <Route path="configuracoes" element={<ConfiguracoesPage />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/cadastro" element={<CadastroPage />} />
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+              <Route index element={<DashboardPage />} />
+              <Route path="agenda" element={<AgendaPage />} />
+              <Route path="calendario" element={<CalendarioPage />} />
+              <Route path="servicos" element={<ServicosPage />} />
+              <Route path="disponibilidade" element={<DisponibilidadePage />} />
+              <Route path="clientes" element={<ClientesPage />} />
+              <Route path="indicacoes" element={<IndicacoesPage />} />
+              <Route path="planos" element={<PlanosPage />} />
+              <Route path="configuracoes" element={<ConfiguracoesPage />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
