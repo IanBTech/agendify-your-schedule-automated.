@@ -14,7 +14,288 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      agendamentos: {
+        Row: {
+          cliente_email: string | null
+          cliente_id: string | null
+          cliente_nome: string | null
+          cliente_telefone: string | null
+          created_at: string
+          data: string
+          horario: string
+          id: string
+          profissional_id: string
+          servico_id: string
+          status: Database["public"]["Enums"]["agendamento_status"]
+          updated_at: string
+        }
+        Insert: {
+          cliente_email?: string | null
+          cliente_id?: string | null
+          cliente_nome?: string | null
+          cliente_telefone?: string | null
+          created_at?: string
+          data: string
+          horario: string
+          id?: string
+          profissional_id: string
+          servico_id: string
+          status?: Database["public"]["Enums"]["agendamento_status"]
+          updated_at?: string
+        }
+        Update: {
+          cliente_email?: string | null
+          cliente_id?: string | null
+          cliente_nome?: string | null
+          cliente_telefone?: string | null
+          created_at?: string
+          data?: string
+          horario?: string
+          id?: string
+          profissional_id?: string
+          servico_id?: string
+          status?: Database["public"]["Enums"]["agendamento_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agendamentos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agendamentos_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agendamentos_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clientes: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          nome: string
+          profissional_id: string
+          telefone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome: string
+          profissional_id: string
+          telefone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome?: string
+          profissional_id?: string
+          telefone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clientes_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disponibilidade: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          dia_semana: number
+          horario_fim: string
+          horario_inicio: string
+          id: string
+          profissional_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          dia_semana: number
+          horario_fim: string
+          horario_inicio: string
+          id?: string
+          profissional_id: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          dia_semana?: number
+          horario_fim?: string
+          horario_inicio?: string
+          id?: string
+          profissional_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disponibilidade_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lista_espera: {
+        Row: {
+          cliente_email: string
+          cliente_nome: string
+          created_at: string
+          data_desejada: string
+          id: string
+          profissional_id: string
+          servico_id: string | null
+        }
+        Insert: {
+          cliente_email: string
+          cliente_nome: string
+          created_at?: string
+          data_desejada: string
+          id?: string
+          profissional_id: string
+          servico_id?: string | null
+        }
+        Update: {
+          cliente_email?: string
+          cliente_nome?: string
+          created_at?: string
+          data_desejada?: string
+          id?: string
+          profissional_id?: string
+          servico_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lista_espera_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lista_espera_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          codigo_indicacao: string
+          created_at: string
+          data_expiracao_teste: string
+          data_inicio_teste: string
+          email: string
+          id: string
+          indicador_id: string | null
+          lembretes_ativos: boolean
+          meses_bonus: number
+          nome: string
+          plano: string
+          profissao: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          codigo_indicacao?: string
+          created_at?: string
+          data_expiracao_teste?: string
+          data_inicio_teste?: string
+          email: string
+          id?: string
+          indicador_id?: string | null
+          lembretes_ativos?: boolean
+          meses_bonus?: number
+          nome: string
+          plano?: string
+          profissao?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          codigo_indicacao?: string
+          created_at?: string
+          data_expiracao_teste?: string
+          data_inicio_teste?: string
+          email?: string
+          id?: string
+          indicador_id?: string | null
+          lembretes_ativos?: boolean
+          meses_bonus?: number
+          nome?: string
+          plano?: string
+          profissao?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_indicador_id_fkey"
+            columns: ["indicador_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      servicos: {
+        Row: {
+          created_at: string
+          duracao_minutos: number
+          id: string
+          nome_servico: string
+          preco: string | null
+          profissional_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duracao_minutos?: number
+          id?: string
+          nome_servico: string
+          preco?: string | null
+          profissional_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duracao_minutos?: number
+          id?: string
+          nome_servico?: string
+          preco?: string | null
+          profissional_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "servicos_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +304,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      agendamento_status: "confirmado" | "cancelado" | "concluido"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +431,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      agendamento_status: ["confirmado", "cancelado", "concluido"],
+    },
   },
 } as const
