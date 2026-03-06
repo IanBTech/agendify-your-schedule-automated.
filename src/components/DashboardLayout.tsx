@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function DashboardLayout() {
   const { profile, signOut } = useAuth();
@@ -22,7 +23,8 @@ export default function DashboardLayout() {
         <div className="flex-1 flex flex-col">
           <header className="h-14 flex items-center border-b px-4">
             <SidebarTrigger />
-            <div className="ml-auto flex items-center gap-3">
+            <div className="ml-auto flex items-center gap-2">
+              <ThemeToggle />
               <span className="text-sm text-muted-foreground hidden sm:inline">
                 {profile?.nome}
               </span>
