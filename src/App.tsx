@@ -52,6 +52,7 @@ const App = () => (
               <Route path="planos" element={<PlanosPage />} />
               <Route path="configuracoes" element={<ConfiguracoesPage />} />
               <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+              <Route path="/book/:slug" element={<BookingPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
