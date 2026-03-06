@@ -154,6 +154,33 @@ export type Database = {
           },
         ]
       }
+      feedback: {
+        Row: {
+          categoria: string
+          created_at: string
+          id: string
+          mensagem: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          categoria?: string
+          created_at?: string
+          id?: string
+          mensagem: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          id?: string
+          mensagem?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       lista_espera: {
         Row: {
           cliente_email: string
@@ -201,50 +228,83 @@ export type Database = {
       }
       profiles: {
         Row: {
+          categoria_negocio: string | null
           codigo_indicacao: string
           created_at: string
           data_expiracao_teste: string
           data_inicio_teste: string
+          descricao_negocio: string | null
           email: string
+          endereco: string | null
+          foto_url: string | null
           id: string
           indicador_id: string | null
           lembretes_ativos: boolean
+          link_instagram: string | null
+          link_website: string | null
           meses_bonus: number
           nome: string
+          nome_negocio: string | null
           plano: string
           profissao: string | null
+          slug: string | null
+          status_conta: string
+          telefone: string | null
+          ultimo_login: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          categoria_negocio?: string | null
           codigo_indicacao?: string
           created_at?: string
           data_expiracao_teste?: string
           data_inicio_teste?: string
+          descricao_negocio?: string | null
           email: string
+          endereco?: string | null
+          foto_url?: string | null
           id?: string
           indicador_id?: string | null
           lembretes_ativos?: boolean
+          link_instagram?: string | null
+          link_website?: string | null
           meses_bonus?: number
           nome: string
+          nome_negocio?: string | null
           plano?: string
           profissao?: string | null
+          slug?: string | null
+          status_conta?: string
+          telefone?: string | null
+          ultimo_login?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          categoria_negocio?: string | null
           codigo_indicacao?: string
           created_at?: string
           data_expiracao_teste?: string
           data_inicio_teste?: string
+          descricao_negocio?: string | null
           email?: string
+          endereco?: string | null
+          foto_url?: string | null
           id?: string
           indicador_id?: string | null
           lembretes_ativos?: boolean
+          link_instagram?: string | null
+          link_website?: string | null
           meses_bonus?: number
           nome?: string
+          nome_negocio?: string | null
           plano?: string
           profissao?: string | null
+          slug?: string | null
+          status_conta?: string
+          telefone?: string | null
+          ultimo_login?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -260,7 +320,10 @@ export type Database = {
       }
       servicos: {
         Row: {
+          ativo: boolean
+          cor_tag: string | null
           created_at: string
+          descricao: string | null
           duracao_minutos: number
           id: string
           nome_servico: string
@@ -269,7 +332,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ativo?: boolean
+          cor_tag?: string | null
           created_at?: string
+          descricao?: string | null
           duracao_minutos?: number
           id?: string
           nome_servico: string
@@ -278,7 +344,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ativo?: boolean
+          cor_tag?: string | null
           created_at?: string
+          descricao?: string | null
           duracao_minutos?: number
           id?: string
           nome_servico?: string
@@ -296,15 +365,41 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: { Args: { _user_id: string }; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       agendamento_status: "confirmado" | "cancelado" | "concluido"
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -433,6 +528,7 @@ export const Constants = {
   public: {
     Enums: {
       agendamento_status: ["confirmado", "cancelado", "concluido"],
+      app_role: ["admin", "user"],
     },
   },
 } as const

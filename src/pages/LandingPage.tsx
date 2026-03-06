@@ -1,6 +1,7 @@
-import { Calendar, CheckCircle, Users, ArrowRight, Zap, Shield, Bell, Clock, Star, ChevronRight } from "lucide-react";
+import { Calendar, CheckCircle, Users, ArrowRight, Zap, Shield, Bell, Clock, Star, ChevronRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const steps = [
   { number: "01", title: "Crie sua conta", description: "Cadastre-se gratuitamente em menos de 1 minuto.", icon: Users },
@@ -13,28 +14,22 @@ const features = [
   { icon: Bell, title: "Lembretes automáticos", desc: "Reduza faltas com lembretes por email." },
   { icon: Shield, title: "Sem conflitos", desc: "O sistema impede agendamentos duplicados." },
   { icon: Clock, title: "Disponibilidade flexível", desc: "Configure horários diferentes por dia da semana." },
-  { icon: Star, title: "Lista de espera", desc: "Capture clientes mesmo quando sua agenda está cheia." },
+  { icon: Star, title: "QR Code & Link", desc: "Compartilhe seu link de agendamento com QR Code." },
   { icon: Users, title: "Gestão de clientes", desc: "Histórico completo de todos os atendimentos." },
 ];
 
 const plans = [
   {
-    name: "Básico",
-    price: "29",
-    features: ["Até 50 agendamentos/mês", "1 serviço", "Link de agendamento", "Lembretes por email"],
+    name: "Solo",
+    price: "49",
+    features: ["1 profissional", "Agendamentos ilimitados", "QR code", "Página de agendamento", "Lembretes por email"],
     popular: false,
   },
   {
-    name: "Profissional",
-    price: "59",
-    features: ["Agendamentos ilimitados", "Serviços ilimitados", "Calendário avançado", "Lista de espera", "Estatísticas", "Programa de indicação"],
-    popular: true,
-  },
-  {
-    name: "Premium",
+    name: "Empresa",
     price: "99",
-    features: ["Tudo do Profissional", "Múltiplas agendas", "API personalizada", "Suporte prioritário", "Domínio personalizado"],
-    popular: false,
+    features: ["Múltiplos profissionais", "Múltiplos calendários", "Gestão de equipe", "Relatórios avançados", "Suporte prioritário"],
+    popular: true,
   },
 ];
 
@@ -55,7 +50,8 @@ export default function LandingPage() {
             <a href="#funcionalidades" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Funcionalidades</a>
             <a href="#planos" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Planos</a>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Button variant="ghost" size="sm" asChild>
               <Link to="/login">Entrar</Link>
             </Button>
@@ -73,24 +69,27 @@ export default function LandingPage() {
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8 animate-fade-up">
               <Zap className="h-3.5 w-3.5" />
-              7 dias grátis para testar
+              14 dias grátis para testar
             </div>
             <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 animate-fade-up" style={{ animationDelay: "0.1s" }}>
-              Sua agenda trabalhando{" "}
-              <span className="text-gradient">por você.</span>
+              Organize sua agenda.{" "}
+              <span className="text-gradient">Cresça seu negócio.</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto mb-10 animate-fade-up" style={{ animationDelay: "0.2s" }}>
-              Automatize seus agendamentos, reduza faltas de clientes e organize sua agenda automaticamente.
+              A forma mais fácil para profissionais gerenciarem agendamentos.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up" style={{ animationDelay: "0.3s" }}>
               <Button variant="hero" size="lg" asChild>
                 <Link to="/cadastro">
-                  Criar conta grátis
+                  Começar teste grátis
                   <ChevronRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button variant="hero-outline" size="lg" asChild>
-                <Link to="/cadastro">Testar grátis</Link>
+                <Link to="/demo">
+                  <Play className="h-4 w-4" />
+                  Testar sem cadastro
+                </Link>
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-4 animate-fade-up" style={{ animationDelay: "0.4s" }}>
@@ -159,10 +158,10 @@ export default function LandingPage() {
               Planos simples e transparentes
             </h2>
             <p className="text-muted-foreground max-w-md mx-auto">
-              Comece grátis por 7 dias. Escolha o plano ideal depois.
+              Comece grátis por 14 dias. Escolha o plano ideal depois.
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {plans.map((plan) => (
               <div
                 key={plan.name}
