@@ -5,14 +5,9 @@ export default function BookingPage() {
   const { slug } = router.query;
 
   return (
-    <div style={{ padding: "40px", fontFamily: "Arial" }}>
+    <div style={{padding:40}}>
       <h1>Agendamento</h1>
-
-      <h2>Profissional:</h2>
-      <p>{slug}</p>
-
-      <p>Esta é a página pública de agendamento.</p>
-      <p>Aqui aparecerão os serviços e horários disponíveis.</p>
+      <p>Profissional: {slug}</p>
     </div>
   );
 }
