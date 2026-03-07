@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Calendar, CheckCircle, XCircle, Clock, Edit, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import ManualBookingDialog from "@/components/ManualBookingDialog";
 
 export default function AgendaPage() {
   const { profile } = useAuth();
@@ -56,7 +57,10 @@ export default function AgendaPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-display text-2xl font-bold">Agenda</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-2xl font-bold">Agenda</h1>
+        <ManualBookingDialog onSuccess={() => queryClient.invalidateQueries({ queryKey: ["agenda"] })} />
+      </div>
 
       <div>
         <h2 className="font-display text-lg font-semibold mb-3">Hoje — {format(new Date(), "dd/MM/yyyy")}</h2>
