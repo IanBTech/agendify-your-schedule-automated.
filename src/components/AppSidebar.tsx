@@ -20,6 +20,7 @@ const menuItems = [
   { title: "Indicações", url: "/dashboard/indicacoes", icon: Gift },
   { title: "Feedback", url: "/dashboard/feedback", icon: MessageSquare },
   { title: "Planos", url: "/dashboard/planos", icon: CreditCard },
+  { title: "Pagamentos", url: "/dashboard/pagamentos", icon: Wallet },
   { title: "Configurações", url: "/dashboard/configuracoes", icon: Settings },
 ];
 
