@@ -23,6 +23,7 @@ import IndicacoesPage from "./pages/dashboard/IndicacoesPage";
 import FeedbackPage from "./pages/dashboard/FeedbackPage";
 import PlanosPage from "./pages/dashboard/PlanosPage";
 import ConfiguracoesPage from "./pages/dashboard/ConfiguracoesPage";
+import PagamentosPage from "./pages/dashboard/PagamentosPage";
 import AdminPage from "./pages/dashboard/AdminPage";
 import NotFound from "./pages/NotFound";
 
