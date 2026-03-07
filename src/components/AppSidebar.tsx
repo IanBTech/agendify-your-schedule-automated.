@@ -5,7 +5,7 @@ import {
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Calendar, CalendarDays, Star, Clock, Users,
-  Gift, CreditCard, Settings, MessageSquare, Link2, ShieldCheck,
+  Gift, CreditCard, Settings, MessageSquare, Link2, ShieldCheck, Wallet,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
