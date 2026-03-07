@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { Calendar, CheckCircle, Clock, ArrowLeft, ArrowRight } from "lucide-react";
+import { Calendar, CheckCircle, Clock, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +23,8 @@ export default function BookingPage() {
   const [profissional, setProfissional] = useState<ProfissionalData | null>(null);
   const [servicos, setServicos] = useState<any[]>([]);
   const [disponibilidade, setDisponibilidade] = useState<any[]>([]);
-  const [agendamentosExistentes, setAgendamentosExistentes] = useState<any[]>([]);
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   const [step, setStep] = useState(1);
   const [selectedServico, setSelectedServico] = useState<any>(null);
@@ -59,8 +60,9 @@ export default function BookingPage() {
     setLoading(false);
   };
 
-  const loadAgendamentos = async (date: Date) => {
+  const loadBookedSlots = useCallback(async (date: Date) => {
     if (!profissional) return;
+    setLoadingSlots(true);
     const dateStr = format(date, "yyyy-MM-dd");
     const { data } = await supabase
       .from("agendamentos")
@@ -68,8 +70,9 @@ export default function BookingPage() {
       .eq("profissional_id", profissional.id)
       .eq("data", dateStr)
       .neq("status", "cancelado");
-    setAgendamentosExistentes(data ?? []);
-  };
+    setBookedSlots((data ?? []).map((a: any) => a.horario?.slice(0, 5)));
+    setLoadingSlots(false);
+  }, [profissional]);
 
   const getAvailableDates = () => {
     const dates: Date[] = [];
@@ -101,7 +104,8 @@ export default function BookingPage() {
       const h = Math.floor(m / 60).toString().padStart(2, "0");
       const min = (m % 60).toString().padStart(2, "0");
       const timeStr = `${h}:${min}`;
-      if (!agendamentosExistentes.some((a: any) => a.horario?.slice(0, 5) === timeStr)) {
+      // Filter out already booked slots
+      if (!bookedSlots.includes(timeStr)) {
         slots.push(timeStr);
       }
     }
@@ -111,7 +115,7 @@ export default function BookingPage() {
   const handleSelectDate = async (date: Date) => {
     setSelectedDate(date);
     setSelectedHorario("");
-    await loadAgendamentos(date);
+    await loadBookedSlots(date);
   };
 
   const handleSubmit = async () => {
@@ -138,7 +142,7 @@ export default function BookingPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -187,14 +191,12 @@ export default function BookingPage() {
       </header>
 
       <div className="container max-w-lg py-8 space-y-6">
-        {/* Progress */}
         <div className="flex items-center gap-2">
           {[1, 2, 3, 4].map((s) => (
             <div key={s} className={`h-1.5 flex-1 rounded-full transition-colors ${s <= step ? "gradient-primary" : "bg-muted"}`} />
           ))}
         </div>
 
-        {/* Step 1: Select service */}
         {step === 1 && (
           <div className="space-y-4">
             <h2 className="font-display text-xl font-bold">Escolha o serviço</h2>
@@ -209,8 +211,9 @@ export default function BookingPage() {
                     <p className="font-semibold">{s.nome_servico}</p>
                     <p className="text-sm text-muted-foreground">
                       <Clock className="h-3.5 w-3.5 inline mr-1" />{s.duracao_minutos} min
-                      {s.preco && ` • ${s.preco}`}
+                      {s.preco && ` • R$ ${s.preco}`}
                     </p>
+                    {s.descricao && <p className="text-xs text-muted-foreground mt-1">{s.descricao}</p>}
                   </CardContent>
                 </Card>
               ))}
@@ -223,7 +226,6 @@ export default function BookingPage() {
           </div>
         )}
 
-        {/* Step 2: Select date */}
         {step === 2 && (
           <div className="space-y-4">
             <Button variant="ghost" size="sm" onClick={() => setStep(1)}><ArrowLeft className="h-4 w-4 mr-1" /> Voltar</Button>
@@ -251,12 +253,15 @@ export default function BookingPage() {
           </div>
         )}
 
-        {/* Step 3: Select time */}
         {step === 3 && (
           <div className="space-y-4">
             <Button variant="ghost" size="sm" onClick={() => setStep(2)}><ArrowLeft className="h-4 w-4 mr-1" /> Voltar</Button>
             <h2 className="font-display text-xl font-bold">Escolha o horário</h2>
-            {timeSlots.length === 0 ? (
+            {loadingSlots ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : timeSlots.length === 0 ? (
               <p className="text-muted-foreground text-sm">Nenhum horário disponível nesta data.</p>
             ) : (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -281,7 +286,6 @@ export default function BookingPage() {
           </div>
         )}
 
-        {/* Step 4: Client info */}
         {step === 4 && (
           <div className="space-y-4">
             <Button variant="ghost" size="sm" onClick={() => setStep(3)}><ArrowLeft className="h-4 w-4 mr-1" /> Voltar</Button>

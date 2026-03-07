@@ -23,6 +23,7 @@ import IndicacoesPage from "./pages/dashboard/IndicacoesPage";
 import FeedbackPage from "./pages/dashboard/FeedbackPage";
 import PlanosPage from "./pages/dashboard/PlanosPage";
 import ConfiguracoesPage from "./pages/dashboard/ConfiguracoesPage";
+import PagamentosPage from "./pages/dashboard/PagamentosPage";
 import AdminPage from "./pages/dashboard/AdminPage";
 import NotFound from "./pages/NotFound";
 
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="feedback" element={<FeedbackPage />} />
               <Route path="planos" element={<PlanosPage />} />
               <Route path="configuracoes" element={<ConfiguracoesPage />} />
+              <Route path="pagamentos" element={<PagamentosPage />} />
               <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
             </Route>
             <Route path="*" element={<NotFound />} />

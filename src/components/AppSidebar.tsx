@@ -5,7 +5,7 @@ import {
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Calendar, CalendarDays, Star, Clock, Users,
-  Gift, CreditCard, Settings, MessageSquare, Link2, ShieldCheck,
+  Gift, CreditCard, Settings, MessageSquare, Link2, ShieldCheck, Wallet,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -20,6 +20,7 @@ const menuItems = [
   { title: "Indicações", url: "/dashboard/indicacoes", icon: Gift },
   { title: "Feedback", url: "/dashboard/feedback", icon: MessageSquare },
   { title: "Planos", url: "/dashboard/planos", icon: CreditCard },
+  { title: "Pagamentos", url: "/dashboard/pagamentos", icon: Wallet },
   { title: "Configurações", url: "/dashboard/configuracoes", icon: Settings },
 ];
 
