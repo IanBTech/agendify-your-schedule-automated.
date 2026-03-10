@@ -4,49 +4,49 @@ import { Link } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const steps = [
-  { number: "01", title: "Crie sua conta", description: "Cadastre-se gratuitamente em menos de 1 minuto.", icon: Users },
-  { number: "02", title: "Configure sua agenda", description: "Adicione seus serviços e horários disponíveis.", icon: Calendar },
-  { number: "03", title: "Compartilhe seu link", description: "Envie para seus clientes e receba agendamentos.", icon: ArrowRight },
-];
+{ number: "01", title: "Crie sua conta", description: "Cadastre-se gratuitamente em menos de 1 minuto.", icon: Users },
+{ number: "02", title: "Configure sua agenda", description: "Adicione seus serviços e horários disponíveis.", icon: Calendar },
+{ number: "03", title: "Compartilhe seu link", description: "Envie para seus clientes e receba agendamentos.", icon: ArrowRight }];
+
 
 const features = [
-  { icon: Zap, title: "Agendamento automático", desc: "Seus clientes agendam sozinhos, 24h por dia." },
-  { icon: Bell, title: "Lembretes automáticos", desc: "Reduza faltas com lembretes por email." },
-  { icon: Shield, title: "Sem conflitos", desc: "O sistema impede agendamentos duplicados." },
-  { icon: Clock, title: "Disponibilidade flexível", desc: "Configure horários diferentes por dia da semana." },
-  { icon: Star, title: "QR Code & Link", desc: "Compartilhe seu link de agendamento com QR Code." },
-  { icon: Users, title: "Gestão de clientes", desc: "Histórico completo de todos os atendimentos." },
-];
+{ icon: Zap, title: "Agendamento automático", desc: "Seus clientes agendam sozinhos, 24h por dia." },
+{ icon: Bell, title: "Lembretes automáticos", desc: "Reduza faltas com lembretes por email." },
+{ icon: Shield, title: "Sem conflitos", desc: "O sistema impede agendamentos duplicados." },
+{ icon: Clock, title: "Disponibilidade flexível", desc: "Configure horários diferentes por dia da semana." },
+{ icon: Star, title: "QR Code & Link", desc: "Compartilhe seu link de agendamento com QR Code." },
+{ icon: Users, title: "Gestão de clientes", desc: "Histórico completo de todos os atendimentos." }];
+
 
 const plans = [
-  {
-    name: "Solo",
-    price: "49",
-    features: ["1 profissional", "Agendamentos ilimitados", "QR code", "Página de agendamento", "Lembretes por email"],
-    popular: false,
-  },
-  {
-    name: "Empresa",
-    price: "99",
-    features: ["Múltiplos profissionais", "Múltiplos calendários", "Gestão de equipe", "Relatórios avançados", "Suporte prioritário"],
-    popular: true,
-  },
-];
+{
+  name: "Solo",
+  price: "49",
+  features: ["1 profissional", "Agendamentos ilimitados", "QR code", "Página de agendamento", "Lembretes por email"],
+  popular: false
+},
+{
+  name: "Empresa",
+  price: "99",
+  features: ["Múltiplos profissionais", "Múltiplos calendários", "Gestão de equipe", "Relatórios avançados", "Suporte prioritário"],
+  popular: true
+}];
+
 
 const audiences = [
-  { icon: Scissors, label: "Barbeiros & Salões" },
-  { icon: Heart, label: "Estética & Beleza" },
-  { icon: Briefcase, label: "Consultores" },
-  { icon: GraduationCap, label: "Professores" },
-  { icon: Camera, label: "Fotógrafos" },
-  { icon: Users, label: "Personal Trainers" },
-];
+{ icon: Scissors, label: "Barbeiros & Salões" },
+{ icon: Heart, label: "Estética & Beleza" },
+{ icon: Briefcase, label: "Consultores" },
+{ icon: GraduationCap, label: "Professores" },
+{ icon: Camera, label: "Fotógrafos" },
+{ icon: Users, label: "Personal Trainers" }];
+
 
 const testimonials = [
-  { name: "Ana Silva", role: "Nail Designer", text: "O Agendify transformou minha rotina. Antes eu perdia horas organizando a agenda pelo WhatsApp." },
-  { name: "Carlos Mendes", role: "Barbeiro", text: "Meus clientes adoram poder agendar sozinhos. Reduzi as faltas em 40% com os lembretes." },
-  { name: "Marina Costa", role: "Personal Trainer", text: "Interface limpa e fácil de usar. Em 5 minutos já estava recebendo agendamentos." },
-];
+{ name: "Ana Silva", role: "Nail Designer", text: "O Agendify transformou minha rotina. Antes eu perdia horas organizando a agenda pelo WhatsApp." },
+{ name: "Carlos Mendes", role: "Barbeiro", text: "Meus clientes adoram poder agendar sozinhos. Reduzi as faltas em 40% com os lembretes." },
+{ name: "Marina Costa", role: "Personal Trainer", text: "Interface limpa e fácil de usar. Em 5 minutos já estava recebendo agendamentos." }];
+
 
 export default function LandingPage() {
   return (
@@ -122,16 +122,16 @@ export default function LandingPage() {
             <p className="text-muted-foreground max-w-md mx-auto">Comece a receber agendamentos em 3 passos simples.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {steps.map((step) => (
-              <div key={step.number} className="relative text-center group">
-                <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl gradient-primary shadow-glow mb-6 mx-auto group-hover:scale-110 transition-transform">
+            {steps.map((step) =>
+            <div key={step.number} className="relative text-center group">
+                <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl gradient-primary shadow-glow mb-6 group-hover:scale-110 transition-transform mx-[20px]">
                   <step.icon className="h-7 w-7 text-primary-foreground" />
                 </div>
-                <span className="text-xs font-mono text-primary font-semibold tracking-widest">PASSO {step.number}</span>
+                <span className="font-mono text-primary font-semibold tracking-widest text-2xl">PASSO {step.number}</span>
                 <h3 className="font-display text-xl font-semibold mt-2 mb-2">{step.title}</h3>
                 <p className="text-muted-foreground text-sm">{step.description}</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -144,15 +144,15 @@ export default function LandingPage() {
             <p className="text-muted-foreground max-w-md mx-auto">Ferramentas feitas para profissionais que valorizam seu tempo.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {features.map((f) => (
-              <div key={f.title} className="p-6 rounded-xl border bg-card shadow-card hover:shadow-glow/20 transition-all hover:-translate-y-1 group">
+            {features.map((f) =>
+            <div key={f.title} className="p-6 rounded-xl border bg-card shadow-card hover:shadow-glow/20 transition-all hover:-translate-y-1 group">
                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <f.icon className="h-5 w-5 text-primary" />
                 </div>
                 <h3 className="font-display font-semibold mb-1">{f.title}</h3>
                 <p className="text-sm text-muted-foreground">{f.desc}</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -165,14 +165,14 @@ export default function LandingPage() {
             <p className="text-muted-foreground max-w-md mx-auto">Ideal para qualquer profissional que atende por horário.</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 max-w-4xl mx-auto">
-            {audiences.map((a) => (
-              <div key={a.label} className="flex flex-col items-center gap-3 p-4 rounded-xl border bg-card shadow-card text-center">
+            {audiences.map((a) =>
+            <div key={a.label} className="flex flex-col items-center gap-3 p-4 rounded-xl border bg-card shadow-card text-center">
                 <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
                   <a.icon className="h-6 w-6 text-primary" />
                 </div>
                 <span className="text-sm font-medium">{a.label}</span>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -184,8 +184,8 @@ export default function LandingPage() {
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">O que dizem nossos clientes</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {testimonials.map((t) => (
-              <div key={t.name} className="p-6 rounded-xl border bg-card shadow-card">
+            {testimonials.map((t) =>
+            <div key={t.name} className="p-6 rounded-xl border bg-card shadow-card">
                 <Quote className="h-6 w-6 text-primary/30 mb-3" />
                 <p className="text-sm text-muted-foreground mb-4">{t.text}</p>
                 <div>
@@ -193,7 +193,7 @@ export default function LandingPage() {
                   <p className="text-xs text-muted-foreground">{t.role}</p>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -206,18 +206,18 @@ export default function LandingPage() {
             <p className="text-muted-foreground max-w-md mx-auto">Comece grátis por 14 dias. Escolha o plano ideal depois.</p>
           </div>
           <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            {plans.map((plan) => (
-              <div
-                key={plan.name}
-                className={`rounded-2xl p-6 border transition-all ${
-                  plan.popular ? "border-primary shadow-glow bg-card scale-105 relative" : "bg-card shadow-card"
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full gradient-primary text-primary-foreground text-xs font-semibold">
+            {plans.map((plan) =>
+            <div
+              key={plan.name}
+              className={`rounded-2xl p-6 border transition-all ${
+              plan.popular ? "border-primary shadow-glow bg-card scale-105 relative" : "bg-card shadow-card"}`
+              }>
+              
+                {plan.popular &&
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full gradient-primary text-primary-foreground text-xs font-semibold">
                     Mais popular
                   </div>
-                )}
+              }
                 <h3 className="font-display text-lg font-semibold mb-1">{plan.name}</h3>
                 <div className="flex items-baseline gap-1 mb-6">
                   <span className="text-sm text-muted-foreground">R$</span>
@@ -225,18 +225,18 @@ export default function LandingPage() {
                   <span className="text-sm text-muted-foreground">/mês</span>
                 </div>
                 <ul className="space-y-3 mb-8">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm">
+                  {plan.features.map((f) =>
+                <li key={f} className="flex items-start gap-2 text-sm">
                       <CheckCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                       <span>{f}</span>
                     </li>
-                  ))}
+                )}
                 </ul>
                 <Button variant={plan.popular ? "hero" : "outline"} className="w-full" asChild>
                   <Link to="/cadastro">Começar agora</Link>
                 </Button>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -302,6 +302,6 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>);
+
 }
