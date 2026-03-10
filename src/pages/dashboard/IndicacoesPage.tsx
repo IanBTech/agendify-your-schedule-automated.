@@ -1,17 +1,32 @@
-import { Gift, Copy } from "lucide-react";
+import { Copy, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 export default function IndicacoesPage() {
   const { profile } = useAuth();
-  const link = `agendify.com/convite/${profile?.codigo_indicacao ?? ""}`;
+  const code = profile?.codigo_indicacao ?? "";
+
+  const { data: referrals = [] } = useQuery({
+    queryKey: ["referrals", profile?.id],
+    enabled: !!profile,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("nome, email, created_at")
+        .eq("indicador_id", profile!.id)
+        .order("created_at", { ascending: false });
+      return data ?? [];
+    },
+  });
 
   const copiar = () => {
-    navigator.clipboard.writeText(link);
-    toast.success("Link copiado!");
+    navigator.clipboard.writeText(code);
+    toast.success("Código copiado!");
   };
 
   return (
@@ -23,22 +38,25 @@ export default function IndicacoesPage() {
 
       <Card className="shadow-card">
         <CardHeader>
-          <CardTitle className="text-base font-display">Seu link de convite</CardTitle>
+          <CardTitle className="text-base font-display">Seu código de indicação</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
-            <Input value={link} readOnly className="font-mono text-sm" />
+            <Input value={code} readOnly className="font-mono text-sm tracking-wider" />
             <Button variant="outline" size="icon" onClick={copiar}>
               <Copy className="h-4 w-4" />
             </Button>
           </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Compartilhe este código. Novos usuários podem informá-lo no cadastro.
+          </p>
         </CardContent>
       </Card>
 
       <div className="grid grid-cols-2 gap-4">
         <Card className="shadow-card">
           <CardContent className="p-4 text-center">
-            <p className="font-display text-3xl font-bold">0</p>
+            <p className="font-display text-3xl font-bold">{referrals.length}</p>
             <p className="text-xs text-muted-foreground mt-1">Indicações</p>
           </CardContent>
         </Card>
@@ -49,6 +67,29 @@ export default function IndicacoesPage() {
           </CardContent>
         </Card>
       </div>
+
+      {referrals.length > 0 && (
+        <Card className="shadow-card">
+          <CardHeader>
+            <CardTitle className="text-base font-display">Usuários indicados</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {referrals.map((r: any, i: number) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                  <div>
+                    <p className="font-medium text-sm">{r.nome}</p>
+                    <p className="text-xs text-muted-foreground">{r.email}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(r.created_at).toLocaleDateString("pt-BR")}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

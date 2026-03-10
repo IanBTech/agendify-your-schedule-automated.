@@ -14,16 +14,11 @@ import DemoPage from "./pages/DemoPage";
 import DashboardLayout from "./components/DashboardLayout";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import AgendaPage from "./pages/dashboard/AgendaPage";
-import CalendarioPage from "./pages/dashboard/CalendarioPage";
-import ServicosPage from "./pages/dashboard/ServicosPage";
-import DisponibilidadePage from "./pages/dashboard/DisponibilidadePage";
 import ClientesPage from "./pages/dashboard/ClientesPage";
-import MeuLinkPage from "./pages/dashboard/MeuLinkPage";
+import PlanosPage from "./pages/dashboard/PlanosPage";
 import IndicacoesPage from "./pages/dashboard/IndicacoesPage";
 import FeedbackPage from "./pages/dashboard/FeedbackPage";
-import PlanosPage from "./pages/dashboard/PlanosPage";
 import ConfiguracoesPage from "./pages/dashboard/ConfiguracoesPage";
-import PagamentosPage from "./pages/dashboard/PagamentosPage";
 import AdminPage from "./pages/dashboard/AdminPage";
 import NotFound from "./pages/NotFound";
 
@@ -45,16 +40,11 @@ const App = () => (
             <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
               <Route index element={<DashboardPage />} />
               <Route path="agenda" element={<AgendaPage />} />
-              <Route path="calendario" element={<CalendarioPage />} />
-              <Route path="servicos" element={<ServicosPage />} />
-              <Route path="disponibilidade" element={<DisponibilidadePage />} />
               <Route path="clientes" element={<ClientesPage />} />
-              <Route path="meu-link" element={<MeuLinkPage />} />
+              <Route path="planos" element={<PlanosPage />} />
               <Route path="indicacoes" element={<IndicacoesPage />} />
               <Route path="feedback" element={<FeedbackPage />} />
-              <Route path="planos" element={<PlanosPage />} />
               <Route path="configuracoes" element={<ConfiguracoesPage />} />
-              <Route path="pagamentos" element={<PagamentosPage />} />
               <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
             </Route>
             <Route path="*" element={<NotFound />} />

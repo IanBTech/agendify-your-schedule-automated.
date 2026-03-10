@@ -4,23 +4,16 @@ import {
 } from "@/components/ui/sidebar";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, Calendar, CalendarDays, Star, Clock, Users,
-  Gift, CreditCard, Settings, MessageSquare, Link2, ShieldCheck, Wallet,
+  LayoutDashboard, Calendar, Users, CreditCard, Gift, Settings, ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Agenda", url: "/dashboard/agenda", icon: Calendar },
-  { title: "Calendário", url: "/dashboard/calendario", icon: CalendarDays },
-  { title: "Serviços", url: "/dashboard/servicos", icon: Star },
-  { title: "Disponibilidade", url: "/dashboard/disponibilidade", icon: Clock },
   { title: "Clientes", url: "/dashboard/clientes", icon: Users },
-  { title: "Meu Link", url: "/dashboard/meu-link", icon: Link2 },
-  { title: "Indicações", url: "/dashboard/indicacoes", icon: Gift },
-  { title: "Feedback", url: "/dashboard/feedback", icon: MessageSquare },
   { title: "Planos", url: "/dashboard/planos", icon: CreditCard },
-  { title: "Pagamentos", url: "/dashboard/pagamentos", icon: Wallet },
+  { title: "Indicações", url: "/dashboard/indicacoes", icon: Gift },
   { title: "Configurações", url: "/dashboard/configuracoes", icon: Settings },
 ];
 
