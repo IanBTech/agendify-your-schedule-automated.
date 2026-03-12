@@ -53,7 +53,42 @@ export default function AgendaPage() {
     },
   });
 
+  // Fetch ALL blocks for the professional
+  const { data: allBloqueios = [] } = useQuery({
+    queryKey: ["bloqueios", profile?.id],
+    enabled: !!profile,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("bloqueios" as any)
+        .select("*")
+        .eq("profissional_id", profile!.id)
+        .order("data_inicio", { ascending: false });
+      return data ?? [];
+    },
+  });
+
   const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+
+  // Check if a date is blocked
+  const isDateBlocked = (dateStr: string) => {
+    return allBloqueios.some((b: any) => {
+      if (b.tipo === "dia" && b.data_inicio === dateStr) return true;
+      if (b.tipo === "periodo" && b.data_inicio <= dateStr && (b.data_fim ?? b.data_inicio) >= dateStr) return true;
+      return false;
+    });
+  };
+
+  // Get blocks for a specific date (for display)
+  const getBlocksForDate = (dateStr: string) => {
+    return allBloqueios.filter((b: any) => {
+      if (b.tipo === "horario" && b.data_inicio === dateStr) return true;
+      if (b.tipo === "dia" && b.data_inicio === dateStr) return true;
+      if (b.tipo === "periodo" && b.data_inicio <= dateStr && (b.data_fim ?? b.data_inicio) >= dateStr) return true;
+      return false;
+    });
+  };
+
+  const dayBlocks = useMemo(() => getBlocksForDate(selectedDateStr), [allBloqueios, selectedDateStr]);
 
   // Day view: appointments for selected date
   const dayAgendamentos = useMemo(() =>
