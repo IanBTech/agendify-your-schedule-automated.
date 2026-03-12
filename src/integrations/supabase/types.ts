@@ -81,6 +81,50 @@ export type Database = {
           },
         ]
       }
+      bloqueios: {
+        Row: {
+          created_at: string
+          data_fim: string | null
+          data_inicio: string
+          horario_fim: string | null
+          horario_inicio: string | null
+          id: string
+          nota: string | null
+          profissional_id: string
+          tipo: string
+        }
+        Insert: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio: string
+          horario_fim?: string | null
+          horario_inicio?: string | null
+          id?: string
+          nota?: string | null
+          profissional_id: string
+          tipo: string
+        }
+        Update: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          horario_fim?: string | null
+          horario_inicio?: string | null
+          id?: string
+          nota?: string | null
+          profissional_id?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bloqueios_profissional_id_fkey"
+            columns: ["profissional_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clientes: {
         Row: {
           created_at: string
