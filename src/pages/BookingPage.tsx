@@ -77,12 +77,22 @@ export default function BookingPage() {
     setLoadingSlots(false);
   }, [profissional]);
 
+  const isDateBlocked = (dateStr: string) => {
+    return bloqueios.some((b: any) => {
+      if (b.tipo === "dia" && b.data_inicio === dateStr) return true;
+      if (b.tipo === "periodo" && b.data_inicio <= dateStr && (b.data_fim ?? b.data_inicio) >= dateStr) return true;
+      return false;
+    });
+  };
+
   const getAvailableDates = () => {
     const dates: Date[] = [];
     const today = startOfDay(new Date());
     for (let i = 1; i <= 30; i++) {
       const d = addDays(today, i);
       const dayOfWeek = d.getDay();
+      const dateStr = format(d, "yyyy-MM-dd");
+      if (isDateBlocked(dateStr)) continue;
       if (disponibilidade.some((disp: any) => disp.dia_semana === dayOfWeek && disp.ativo)) {
         dates.push(d);
       }
