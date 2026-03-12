@@ -52,12 +52,14 @@ export default function BookingPage() {
     if (!prof) { setLoading(false); return; }
     setProfissional(prof as any);
 
-    const [{ data: srvs }, { data: disp }] = await Promise.all([
+    const [{ data: srvs }, { data: disp }, { data: blocks }] = await Promise.all([
       supabase.from("servicos").select("*").eq("profissional_id", prof.id).eq("ativo", true),
       supabase.from("disponibilidade").select("*").eq("profissional_id", prof.id).eq("ativo", true),
+      supabase.from("bloqueios" as any).select("*").eq("profissional_id", prof.id),
     ]);
     setServicos(srvs ?? []);
     setDisponibilidade(disp ?? []);
+    setBloqueios(blocks ?? []);
     setLoading(false);
   };
 
