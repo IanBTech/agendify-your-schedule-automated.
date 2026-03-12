@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Calendar as CalendarIcon, CheckCircle, XCircle, Clock, Trash2, CalendarClock, Plus, History, Filter } from "lucide-react";
+import { Calendar as CalendarIcon, CheckCircle, XCircle, Clock, Trash2, CalendarClock, Plus, History, Filter, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,9 +9,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isSameDay } from "date-fns";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isSameDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ManualBookingDialog from "@/components/ManualBookingDialog";
+import BlockTimeDialog from "@/components/BlockTimeDialog";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -52,7 +53,42 @@ export default function AgendaPage() {
     },
   });
 
+  // Fetch ALL blocks for the professional
+  const { data: allBloqueios = [] } = useQuery({
+    queryKey: ["bloqueios", profile?.id],
+    enabled: !!profile,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("bloqueios" as any)
+        .select("*")
+        .eq("profissional_id", profile!.id)
+        .order("data_inicio", { ascending: false });
+      return data ?? [];
+    },
+  });
+
   const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+
+  // Check if a date is blocked
+  const isDateBlocked = (dateStr: string) => {
+    return allBloqueios.some((b: any) => {
+      if (b.tipo === "dia" && b.data_inicio === dateStr) return true;
+      if (b.tipo === "periodo" && b.data_inicio <= dateStr && (b.data_fim ?? b.data_inicio) >= dateStr) return true;
+      return false;
+    });
+  };
+
+  // Get blocks for a specific date (for display)
+  const getBlocksForDate = (dateStr: string) => {
+    return allBloqueios.filter((b: any) => {
+      if (b.tipo === "horario" && b.data_inicio === dateStr) return true;
+      if (b.tipo === "dia" && b.data_inicio === dateStr) return true;
+      if (b.tipo === "periodo" && b.data_inicio <= dateStr && (b.data_fim ?? b.data_inicio) >= dateStr) return true;
+      return false;
+    });
+  };
+
+  const dayBlocks = useMemo(() => getBlocksForDate(selectedDateStr), [allBloqueios, selectedDateStr]);
 
   // Day view: appointments for selected date
   const dayAgendamentos = useMemo(() =>
@@ -146,12 +182,40 @@ export default function AgendaPage() {
     }
   };
 
-  // Dates that have appointments (for calendar dots)
+  // Dates that have appointments or blocks (for calendar)
   const datesWithAppointments = useMemo(() => {
     const set = new Set<string>();
     allAgendamentos.forEach((a: any) => set.add(a.data));
     return set;
   }, [allAgendamentos]);
+
+  const blockedDatesSet = useMemo(() => {
+    const set = new Set<string>();
+    allBloqueios.forEach((b: any) => {
+      if (b.tipo === "dia") set.add(b.data_inicio);
+      if (b.tipo === "periodo") {
+        let d = new Date(b.data_inicio + "T00:00:00");
+        const end = new Date((b.data_fim ?? b.data_inicio) + "T00:00:00");
+        while (d <= end) {
+          set.add(format(d, "yyyy-MM-dd"));
+          d = new Date(d.getTime() + 86400000);
+        }
+      }
+      if (b.tipo === "horario") set.add(b.data_inicio);
+    });
+    return set;
+  }, [allBloqueios]);
+
+  const deleteBlockMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("bloqueios" as any).delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bloqueios"] });
+      toast.success("Bloqueio removido!");
+    },
+  });
 
   const renderCard = (a: any) => (
     <Card key={a.id} className="shadow-card">
@@ -219,7 +283,10 @@ export default function AgendaPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <h1 className="font-display text-2xl font-bold">Agenda</h1>
-        <ManualBookingDialog onSuccess={() => queryClient.invalidateQueries({ queryKey: ["agenda-all"] })} />
+        <div className="flex gap-2 flex-wrap">
+          <BlockTimeDialog onSuccess={() => queryClient.invalidateQueries({ queryKey: ["bloqueios"] })} />
+          <ManualBookingDialog onSuccess={() => queryClient.invalidateQueries({ queryKey: ["agenda-all"] })} />
+        </div>
       </div>
 
       {/* Calendar */}
@@ -231,8 +298,14 @@ export default function AgendaPage() {
             onSelect={(d) => { if (d) { setSelectedDate(d); setViewMode("day"); } }}
             locale={ptBR}
             className="mx-auto"
-            modifiers={{ hasAppointment: (date) => datesWithAppointments.has(format(date, "yyyy-MM-dd")) }}
-            modifiersClassNames={{ hasAppointment: "font-bold text-primary" }}
+            modifiers={{
+              hasAppointment: (date) => datesWithAppointments.has(format(date, "yyyy-MM-dd")),
+              blocked: (date) => blockedDatesSet.has(format(date, "yyyy-MM-dd")),
+            }}
+            modifiersClassNames={{
+              hasAppointment: "font-bold text-primary",
+              blocked: "line-through text-destructive opacity-60",
+            }}
           />
         </CardContent>
       </Card>
@@ -261,6 +334,49 @@ export default function AgendaPage() {
           <h2 className="font-display text-lg font-semibold mb-3">
             {isSameDay(selectedDate, new Date()) ? "Hoje" : format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
           </h2>
+
+          {/* Blocks for this day */}
+          {dayBlocks.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {dayBlocks.map((b: any) => (
+                <Card key={b.id} className="border-destructive/30 bg-destructive/5">
+                  <CardContent className="p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Ban className="h-4 w-4 text-destructive" />
+                      <div>
+                        <p className="text-sm font-medium text-destructive">
+                          {b.tipo === "horario" && `Bloqueado ${b.horario_inicio?.slice(0, 5)} - ${b.horario_fim?.slice(0, 5)}`}
+                          {b.tipo === "dia" && "Dia inteiro bloqueado"}
+                          {b.tipo === "periodo" && `Período bloqueado (${format(new Date(b.data_inicio + "T00:00:00"), "dd/MM")} - ${format(new Date((b.data_fim ?? b.data_inicio) + "T00:00:00"), "dd/MM")})`}
+                        </p>
+                        {b.nota && <p className="text-xs text-muted-foreground">{b.nota}</p>}
+                      </div>
+                    </div>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Remover bloqueio?</AlertDialogTitle>
+                          <AlertDialogDescription>O horário voltará a ficar disponível para agendamentos.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => deleteBlockMutation.mutate(b.id)} className="bg-destructive text-destructive-foreground">
+                            Remover
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
           {dayAgendamentos.length === 0 ? (
             <Card className="shadow-card">
               <CardContent className="p-6 text-center">

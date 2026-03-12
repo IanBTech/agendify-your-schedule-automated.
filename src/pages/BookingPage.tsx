@@ -24,6 +24,7 @@ export default function BookingPage() {
   const [servicos, setServicos] = useState<any[]>([]);
   const [disponibilidade, setDisponibilidade] = useState<any[]>([]);
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [bloqueios, setBloqueios] = useState<any[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
   const [step, setStep] = useState(1);
@@ -51,12 +52,14 @@ export default function BookingPage() {
     if (!prof) { setLoading(false); return; }
     setProfissional(prof as any);
 
-    const [{ data: srvs }, { data: disp }] = await Promise.all([
+    const [{ data: srvs }, { data: disp }, { data: blocks }] = await Promise.all([
       supabase.from("servicos").select("*").eq("profissional_id", prof.id).eq("ativo", true),
       supabase.from("disponibilidade").select("*").eq("profissional_id", prof.id).eq("ativo", true),
+      supabase.from("bloqueios" as any).select("*").eq("profissional_id", prof.id),
     ]);
     setServicos(srvs ?? []);
     setDisponibilidade(disp ?? []);
+    setBloqueios(blocks ?? []);
     setLoading(false);
   };
 
@@ -74,12 +77,22 @@ export default function BookingPage() {
     setLoadingSlots(false);
   }, [profissional]);
 
+  const isDateBlocked = (dateStr: string) => {
+    return bloqueios.some((b: any) => {
+      if (b.tipo === "dia" && b.data_inicio === dateStr) return true;
+      if (b.tipo === "periodo" && b.data_inicio <= dateStr && (b.data_fim ?? b.data_inicio) >= dateStr) return true;
+      return false;
+    });
+  };
+
   const getAvailableDates = () => {
     const dates: Date[] = [];
     const today = startOfDay(new Date());
     for (let i = 1; i <= 30; i++) {
       const d = addDays(today, i);
       const dayOfWeek = d.getDay();
+      const dateStr = format(d, "yyyy-MM-dd");
+      if (isDateBlocked(dateStr)) continue;
       if (disponibilidade.some((disp: any) => disp.dia_semana === dayOfWeek && disp.ativo)) {
         dates.push(d);
       }
@@ -100,12 +113,27 @@ export default function BookingPage() {
     const endMin = endH * 60 + endM;
     const duration = selectedServico.duracao_minutos;
 
+    // Get time-specific blocks for this date
+    const dateStr = format(selectedDate, "yyyy-MM-dd");
+    const timeBlocks = bloqueios.filter((b: any) => b.tipo === "horario" && b.data_inicio === dateStr);
+
     for (let m = startMin; m + duration <= endMin; m += duration) {
       const h = Math.floor(m / 60).toString().padStart(2, "0");
       const min = (m % 60).toString().padStart(2, "0");
       const timeStr = `${h}:${min}`;
       // Filter out already booked slots
-      if (!bookedSlots.includes(timeStr)) {
+      if (bookedSlots.includes(timeStr)) continue;
+      // Filter out time-blocked slots
+      const slotMin = m;
+      const slotEnd = m + duration;
+      const isBlocked = timeBlocks.some((b: any) => {
+        const [bsH, bsM] = (b.horario_inicio || "00:00").split(":").map(Number);
+        const [beH, beM] = (b.horario_fim || "23:59").split(":").map(Number);
+        const blockStart = bsH * 60 + bsM;
+        const blockEnd = beH * 60 + beM;
+        return slotMin < blockEnd && slotEnd > blockStart;
+      });
+      if (!isBlocked) {
         slots.push(timeStr);
       }
     }
