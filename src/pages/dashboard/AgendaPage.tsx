@@ -182,12 +182,40 @@ export default function AgendaPage() {
     }
   };
 
-  // Dates that have appointments (for calendar dots)
+  // Dates that have appointments or blocks (for calendar)
   const datesWithAppointments = useMemo(() => {
     const set = new Set<string>();
     allAgendamentos.forEach((a: any) => set.add(a.data));
     return set;
   }, [allAgendamentos]);
+
+  const blockedDatesSet = useMemo(() => {
+    const set = new Set<string>();
+    allBloqueios.forEach((b: any) => {
+      if (b.tipo === "dia") set.add(b.data_inicio);
+      if (b.tipo === "periodo") {
+        let d = new Date(b.data_inicio + "T00:00:00");
+        const end = new Date((b.data_fim ?? b.data_inicio) + "T00:00:00");
+        while (d <= end) {
+          set.add(format(d, "yyyy-MM-dd"));
+          d = new Date(d.getTime() + 86400000);
+        }
+      }
+      if (b.tipo === "horario") set.add(b.data_inicio);
+    });
+    return set;
+  }, [allBloqueios]);
+
+  const deleteBlockMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("bloqueios" as any).delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bloqueios"] });
+      toast.success("Bloqueio removido!");
+    },
+  });
 
   const renderCard = (a: any) => (
     <Card key={a.id} className="shadow-card">
