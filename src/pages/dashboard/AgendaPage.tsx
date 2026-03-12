@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Calendar as CalendarIcon, CheckCircle, XCircle, Clock, Trash2, CalendarClock, Plus, History, Filter } from "lucide-react";
+import { Calendar as CalendarIcon, CheckCircle, XCircle, Clock, Trash2, CalendarClock, Plus, History, Filter, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,9 +9,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isSameDay } from "date-fns";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isSameDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import ManualBookingDialog from "@/components/ManualBookingDialog";
+import BlockTimeDialog from "@/components/BlockTimeDialog";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
