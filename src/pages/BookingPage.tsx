@@ -113,12 +113,27 @@ export default function BookingPage() {
     const endMin = endH * 60 + endM;
     const duration = selectedServico.duracao_minutos;
 
+    // Get time-specific blocks for this date
+    const dateStr = format(selectedDate, "yyyy-MM-dd");
+    const timeBlocks = bloqueios.filter((b: any) => b.tipo === "horario" && b.data_inicio === dateStr);
+
     for (let m = startMin; m + duration <= endMin; m += duration) {
       const h = Math.floor(m / 60).toString().padStart(2, "0");
       const min = (m % 60).toString().padStart(2, "0");
       const timeStr = `${h}:${min}`;
       // Filter out already booked slots
-      if (!bookedSlots.includes(timeStr)) {
+      if (bookedSlots.includes(timeStr)) continue;
+      // Filter out time-blocked slots
+      const slotMin = m;
+      const slotEnd = m + duration;
+      const isBlocked = timeBlocks.some((b: any) => {
+        const [bsH, bsM] = (b.horario_inicio || "00:00").split(":").map(Number);
+        const [beH, beM] = (b.horario_fim || "23:59").split(":").map(Number);
+        const blockStart = bsH * 60 + bsM;
+        const blockEnd = beH * 60 + beM;
+        return slotMin < blockEnd && slotEnd > blockStart;
+      });
+      if (!isBlocked) {
         slots.push(timeStr);
       }
     }
