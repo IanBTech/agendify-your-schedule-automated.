@@ -24,6 +24,7 @@ export default function BookingPage() {
   const [servicos, setServicos] = useState<any[]>([]);
   const [disponibilidade, setDisponibilidade] = useState<any[]>([]);
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [bloqueios, setBloqueios] = useState<any[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
   const [step, setStep] = useState(1);

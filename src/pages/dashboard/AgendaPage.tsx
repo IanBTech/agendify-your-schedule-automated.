@@ -283,7 +283,10 @@ export default function AgendaPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <h1 className="font-display text-2xl font-bold">Agenda</h1>
-        <ManualBookingDialog onSuccess={() => queryClient.invalidateQueries({ queryKey: ["agenda-all"] })} />
+        <div className="flex gap-2 flex-wrap">
+          <BlockTimeDialog onSuccess={() => queryClient.invalidateQueries({ queryKey: ["bloqueios"] })} />
+          <ManualBookingDialog onSuccess={() => queryClient.invalidateQueries({ queryKey: ["agenda-all"] })} />
+        </div>
       </div>
 
       {/* Calendar */}
@@ -295,8 +298,14 @@ export default function AgendaPage() {
             onSelect={(d) => { if (d) { setSelectedDate(d); setViewMode("day"); } }}
             locale={ptBR}
             className="mx-auto"
-            modifiers={{ hasAppointment: (date) => datesWithAppointments.has(format(date, "yyyy-MM-dd")) }}
-            modifiersClassNames={{ hasAppointment: "font-bold text-primary" }}
+            modifiers={{
+              hasAppointment: (date) => datesWithAppointments.has(format(date, "yyyy-MM-dd")),
+              blocked: (date) => blockedDatesSet.has(format(date, "yyyy-MM-dd")),
+            }}
+            modifiersClassNames={{
+              hasAppointment: "font-bold text-primary",
+              blocked: "line-through text-destructive opacity-60",
+            }}
           />
         </CardContent>
       </Card>
@@ -325,6 +334,49 @@ export default function AgendaPage() {
           <h2 className="font-display text-lg font-semibold mb-3">
             {isSameDay(selectedDate, new Date()) ? "Hoje" : format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
           </h2>
+
+          {/* Blocks for this day */}
+          {dayBlocks.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {dayBlocks.map((b: any) => (
+                <Card key={b.id} className="border-destructive/30 bg-destructive/5">
+                  <CardContent className="p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Ban className="h-4 w-4 text-destructive" />
+                      <div>
+                        <p className="text-sm font-medium text-destructive">
+                          {b.tipo === "horario" && `Bloqueado ${b.horario_inicio?.slice(0, 5)} - ${b.horario_fim?.slice(0, 5)}`}
+                          {b.tipo === "dia" && "Dia inteiro bloqueado"}
+                          {b.tipo === "periodo" && `Período bloqueado (${format(new Date(b.data_inicio + "T00:00:00"), "dd/MM")} - ${format(new Date((b.data_fim ?? b.data_inicio) + "T00:00:00"), "dd/MM")})`}
+                        </p>
+                        {b.nota && <p className="text-xs text-muted-foreground">{b.nota}</p>}
+                      </div>
+                    </div>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Remover bloqueio?</AlertDialogTitle>
+                          <AlertDialogDescription>O horário voltará a ficar disponível para agendamentos.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => deleteBlockMutation.mutate(b.id)} className="bg-destructive text-destructive-foreground">
+                            Remover
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
           {dayAgendamentos.length === 0 ? (
             <Card className="shadow-card">
               <CardContent className="p-6 text-center">
