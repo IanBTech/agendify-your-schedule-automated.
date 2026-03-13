@@ -18,6 +18,8 @@ export default function CadastroPage() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [profissao, setProfissao] = useState("");
+  const [tipoConta, setTipoConta] = useState<"individual" | "empresa">("individual");
+  const [codigoIndicacao, setCodigoIndicacao] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -29,7 +31,7 @@ export default function CadastroPage() {
       email,
       password: senha,
       options: {
-        data: { nome, profissao },
+        data: { nome, profissao, tipo_conta: tipoConta, codigo_indicacao_usado: codigoIndicacao || undefined },
         emailRedirectTo: window.location.origin,
       },
     });
@@ -99,6 +101,44 @@ export default function CadastroPage() {
                   <option key={p} value={p}>{p}</option>
                 ))}
               </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Tipo de conta</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setTipoConta("individual")}
+                  className={`p-3 rounded-lg border text-center text-sm font-medium transition-all ${
+                    tipoConta === "individual"
+                      ? "border-primary bg-primary/10 ring-2 ring-primary/20"
+                      : "hover:border-primary/50"
+                  }`}
+                >
+                  👤 Profissional Individual
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTipoConta("empresa")}
+                  className={`p-3 rounded-lg border text-center text-sm font-medium transition-all ${
+                    tipoConta === "empresa"
+                      ? "border-primary bg-primary/10 ring-2 ring-primary/20"
+                      : "hover:border-primary/50"
+                  }`}
+                >
+                  🏢 Empresa / Equipe
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="codigoIndicacao">Código de indicação (opcional)</Label>
+              <Input
+                id="codigoIndicacao"
+                placeholder="Ex: AGDFY-ABC123"
+                value={codigoIndicacao}
+                onChange={(e) => setCodigoIndicacao(e.target.value.toUpperCase())}
+              />
             </div>
             <Button variant="hero" className="w-full" type="submit" disabled={loading}>
               {loading ? "Criando conta..." : "Criar conta grátis"}
