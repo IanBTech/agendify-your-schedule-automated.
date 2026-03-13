@@ -33,12 +33,15 @@ function AdminUsers() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("profiles").delete().eq("id", id);
+      const { error } = await supabase.rpc("admin_delete_user", { _profile_id: id });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      toast.success("Usuário removido!");
+      toast.success("Usuário e dados relacionados removidos!");
+    },
+    onError: (error: any) => {
+      toast.error("Erro ao remover: " + error.message);
     },
   });
 
