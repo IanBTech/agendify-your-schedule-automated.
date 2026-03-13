@@ -1,9 +1,11 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { BarChart3, Calendar, Clock, Users } from "lucide-react";
+import { BarChart3, Calendar, Clock, Users, Link2, Copy, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { differenceInDays, format } from "date-fns";
+import { toast } from "sonner";
 
 export default function DashboardPage() {
   const { profile } = useAuth();
