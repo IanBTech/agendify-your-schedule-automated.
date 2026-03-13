@@ -18,6 +18,8 @@ export default function CadastroPage() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [profissao, setProfissao] = useState("");
+  const [tipoConta, setTipoConta] = useState<"individual" | "empresa">("individual");
+  const [codigoIndicacao, setCodigoIndicacao] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -29,7 +31,7 @@ export default function CadastroPage() {
       email,
       password: senha,
       options: {
-        data: { nome, profissao },
+        data: { nome, profissao, tipo_conta: tipoConta, codigo_indicacao_usado: codigoIndicacao || undefined },
         emailRedirectTo: window.location.origin,
       },
     });
