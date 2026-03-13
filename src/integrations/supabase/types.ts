@@ -270,6 +270,65 @@ export type Database = {
           },
         ]
       }
+      organization_members: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          role: Database["public"]["Enums"]["org_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          role?: Database["public"]["Enums"]["org_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          role?: Database["public"]["Enums"]["org_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          owner_id: string
+          slug: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          owner_id: string
+          slug?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          owner_id?: string
+          slug?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           categoria_negocio: string | null
@@ -289,11 +348,13 @@ export type Database = {
           meses_bonus: number
           nome: string
           nome_negocio: string | null
+          organization_id: string | null
           plano: string
           profissao: string | null
           slug: string | null
           status_conta: string
           telefone: string | null
+          tipo_conta: string
           ultimo_login: string | null
           updated_at: string
           user_id: string
@@ -316,11 +377,13 @@ export type Database = {
           meses_bonus?: number
           nome: string
           nome_negocio?: string | null
+          organization_id?: string | null
           plano?: string
           profissao?: string | null
           slug?: string | null
           status_conta?: string
           telefone?: string | null
+          tipo_conta?: string
           ultimo_login?: string | null
           updated_at?: string
           user_id: string
@@ -343,11 +406,13 @@ export type Database = {
           meses_bonus?: number
           nome?: string
           nome_negocio?: string | null
+          organization_id?: string | null
           plano?: string
           profissao?: string | null
           slug?: string | null
           status_conta?: string
           telefone?: string | null
+          tipo_conta?: string
           ultimo_login?: string | null
           updated_at?: string
           user_id?: string
@@ -358,6 +423,13 @@ export type Database = {
             columns: ["indicador_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -444,6 +516,7 @@ export type Database = {
     Enums: {
       agendamento_status: "confirmado" | "cancelado" | "concluido"
       app_role: "admin" | "user"
+      org_role: "owner" | "employee"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -573,6 +646,7 @@ export const Constants = {
     Enums: {
       agendamento_status: ["confirmado", "cancelado", "concluido"],
       app_role: ["admin", "user"],
+      org_role: ["owner", "employee"],
     },
   },
 } as const
