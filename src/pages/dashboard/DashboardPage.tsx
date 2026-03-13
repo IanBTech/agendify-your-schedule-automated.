@@ -77,6 +77,41 @@ export default function DashboardPage() {
 
       <h1 className="font-display text-2xl font-bold">Dashboard</h1>
 
+      {profile?.slug && (
+        <Card className="shadow-card">
+          <CardContent className="p-4 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-9 w-9 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Link2 className="h-4 w-4 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">Seu link de agendamento</p>
+                <p className="text-sm font-medium truncate">{window.location.origin}/book/{profile.slug}</p>
+              </div>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/book/${profile.slug}`);
+                  toast.success("Link copiado!");
+                }}
+              >
+                <Copy className="h-3.5 w-3.5 mr-1" /> Copiar
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(`/book/${profile.slug}`, "_blank")}
+              >
+                <ExternalLink className="h-3.5 w-3.5 mr-1" /> Abrir
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s) => (
           <Card key={s.label} className="shadow-card">
