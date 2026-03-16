@@ -4,7 +4,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, Calendar, Users, CreditCard, Gift, Settings, ShieldCheck,
+  LayoutDashboard, Calendar, Users, CreditCard, Gift, Settings, ShieldCheck, UsersRound,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -21,11 +21,23 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { isAdmin } = useAuth();
+  const { isAdmin, profile } = useAuth();
 
-  const allItems = isAdmin
-    ? [...menuItems, { title: "Admin", url: "/dashboard/admin", icon: ShieldCheck }]
-    : menuItems;
+  const isCompanyAdmin = profile?.tipo_conta === "empresa";
+  const isEmployee = profile?.tipo_conta === "employee";
+
+  // Build menu: employees don't see billing/settings
+  let allItems = isEmployee
+    ? menuItems.filter(item => !["Planos", "Indicações", "Configurações"].includes(item.title))
+    : [...menuItems];
+
+  if (isCompanyAdmin) {
+    allItems = [...allItems.slice(0, 3), { title: "Equipe", url: "/dashboard/equipe", icon: UsersRound }, ...allItems.slice(3)];
+  }
+
+  if (isAdmin) {
+    allItems = [...allItems, { title: "Admin", url: "/dashboard/admin", icon: ShieldCheck }];
+  }
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">

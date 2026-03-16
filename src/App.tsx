@@ -38,6 +38,7 @@ const App = () => (
             <Route path="/login" element={<LoginPage />} />
             <Route path="/cadastro" element={<CadastroPage />} />
             <Route path="/book/:slug" element={<BookingPage />} />
+            <Route path="/invite/:token" element={<InvitePage />} />
             <Route path="/demo" element={<DemoPage />} />
             <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
               <Route index element={<DashboardPage />} />
@@ -47,6 +48,7 @@ const App = () => (
               <Route path="indicacoes" element={<IndicacoesPage />} />
               <Route path="feedback" element={<FeedbackPage />} />
               <Route path="configuracoes" element={<ConfiguracoesPage />} />
+              <Route path="equipe" element={<EquipePage />} />
               <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
             </Route>
             <Route path="*" element={<NotFound />} />
