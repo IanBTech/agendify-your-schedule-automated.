@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { Calendar, CheckCircle, Clock, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { Calendar, CheckCircle, Clock, ArrowLeft, ArrowRight, Loader2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,16 +18,23 @@ interface ProfissionalData {
   descricao_negocio: string | null;
 }
 
+interface OrgData {
+  id: string;
+  nome: string;
+  members: ProfissionalData[];
+}
+
 export default function BookingPage() {
   const { slug } = useParams();
   const [profissional, setProfissional] = useState<ProfissionalData | null>(null);
+  const [orgData, setOrgData] = useState<OrgData | null>(null);
   const [servicos, setServicos] = useState<any[]>([]);
   const [disponibilidade, setDisponibilidade] = useState<any[]>([]);
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
   const [bloqueios, setBloqueios] = useState<any[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0); // 0 = choose professional (company only), 1-4 = booking steps
   const [selectedServico, setSelectedServico] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedHorario, setSelectedHorario] = useState("");
@@ -37,30 +44,79 @@ export default function BookingPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    loadProfissional();
+    loadData();
   }, [slug]);
 
-  const loadProfissional = async () => {
+  const loadData = async () => {
+    // First try to find a profile with this slug
     const { data: prof } = await supabase
       .from("profiles")
       .select("id, nome, nome_negocio, profissao, descricao_negocio")
       .eq("slug", slug!)
       .single();
 
-    if (!prof) { setLoading(false); return; }
-    setProfissional(prof as any);
+    if (prof) {
+      setProfissional(prof as any);
+      await loadProfissionalData(prof.id);
+      setStep(1);
+      setLoading(false);
+      return;
+    }
 
+    // Try organization slug
+    const { data: org } = await supabase
+      .from("organizations")
+      .select("id, nome, slug")
+      .eq("slug", slug!)
+      .single();
+
+    if (org) {
+      // Load org members
+      const { data: members } = await supabase
+        .from("organization_members")
+        .select("user_id")
+        .eq("organization_id", org.id);
+
+      if (members && members.length > 0) {
+        const userIds = members.map((m: any) => m.user_id);
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, nome, nome_negocio, profissao, descricao_negocio")
+          .in("user_id", userIds);
+
+        setOrgData({
+          id: org.id,
+          nome: org.nome,
+          members: (profiles || []) as ProfissionalData[],
+        });
+        setStep(0);
+      }
+      setLoading(false);
+      return;
+    }
+
+    setNotFound(true);
+    setLoading(false);
+  };
+
+  const loadProfissionalData = async (profId: string) => {
     const [{ data: srvs }, { data: disp }, { data: blocks }] = await Promise.all([
-      supabase.from("servicos").select("*").eq("profissional_id", prof.id).eq("ativo", true),
-      supabase.from("disponibilidade").select("*").eq("profissional_id", prof.id).eq("ativo", true),
-      supabase.from("bloqueios" as any).select("*").eq("profissional_id", prof.id),
+      supabase.from("servicos").select("*").eq("profissional_id", profId).eq("ativo", true),
+      supabase.from("disponibilidade").select("*").eq("profissional_id", profId).eq("ativo", true),
+      supabase.from("bloqueios" as any).select("*").eq("profissional_id", profId),
     ]);
     setServicos(srvs ?? []);
     setDisponibilidade(disp ?? []);
     setBloqueios(blocks ?? []);
-    setLoading(false);
+  };
+
+  const selectProfessional = async (prof: ProfissionalData) => {
+    setProfissional(prof);
+    await loadProfissionalData(prof.id);
+    setStep(1);
   };
 
   const loadBookedSlots = useCallback(async (date: Date) => {
@@ -113,7 +169,6 @@ export default function BookingPage() {
     const endMin = endH * 60 + endM;
     const duration = selectedServico.duracao_minutos;
 
-    // Get time-specific blocks for this date
     const dateStr = format(selectedDate, "yyyy-MM-dd");
     const timeBlocks = bloqueios.filter((b: any) => b.tipo === "horario" && b.data_inicio === dateStr);
 
@@ -121,9 +176,7 @@ export default function BookingPage() {
       const h = Math.floor(m / 60).toString().padStart(2, "0");
       const min = (m % 60).toString().padStart(2, "0");
       const timeStr = `${h}:${min}`;
-      // Filter out already booked slots
       if (bookedSlots.includes(timeStr)) continue;
-      // Filter out time-blocked slots
       const slotMin = m;
       const slotEnd = m + duration;
       const isBlocked = timeBlocks.some((b: any) => {
@@ -175,7 +228,7 @@ export default function BookingPage() {
     );
   }
 
-  if (!profissional) {
+  if (notFound) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 text-center">
         <Calendar className="h-16 w-16 text-muted-foreground/20 mb-4" />
@@ -196,7 +249,7 @@ export default function BookingPage() {
         <p className="text-muted-foreground">
           {selectedDate && format(selectedDate, "dd/MM/yyyy")} às {selectedHorario}
         </p>
-        <p className="text-sm text-muted-foreground mt-4">com {profissional.nome}</p>
+        <p className="text-sm text-muted-foreground mt-4">com {profissional?.nome}</p>
       </div>
     );
   }
@@ -212,22 +265,65 @@ export default function BookingPage() {
             <Calendar className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="font-display font-bold">{profissional.nome_negocio || profissional.nome}</h1>
-            {profissional.profissao && <p className="text-xs text-muted-foreground">{profissional.profissao}</p>}
+            <h1 className="font-display font-bold">
+              {orgData ? orgData.nome : (profissional?.nome_negocio || profissional?.nome)}
+            </h1>
+            {!orgData && profissional?.profissao && (
+              <p className="text-xs text-muted-foreground">{profissional.profissao}</p>
+            )}
           </div>
         </div>
       </header>
 
       <div className="container max-w-lg py-8 space-y-6">
-        <div className="flex items-center gap-2">
-          {[1, 2, 3, 4].map((s) => (
-            <div key={s} className={`h-1.5 flex-1 rounded-full transition-colors ${s <= step ? "gradient-primary" : "bg-muted"}`} />
-          ))}
-        </div>
+        {/* Progress bar */}
+        {step > 0 && (
+          <div className="flex items-center gap-2">
+            {[1, 2, 3, 4].map((s) => (
+              <div key={s} className={`h-1.5 flex-1 rounded-full transition-colors ${s <= step ? "gradient-primary" : "bg-muted"}`} />
+            ))}
+          </div>
+        )}
+
+        {/* Step 0: Choose professional (company only) */}
+        {step === 0 && orgData && (
+          <div className="space-y-4">
+            <h2 className="font-display text-xl font-bold">Escolha um profissional</h2>
+            <div className="space-y-3">
+              {orgData.members.map((member) => (
+                <Card
+                  key={member.id}
+                  className="shadow-card cursor-pointer transition-all hover:border-primary"
+                  onClick={() => selectProfessional(member)}
+                >
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-semibold">{member.nome}</p>
+                      {member.profissao && (
+                        <p className="text-sm text-muted-foreground">{member.profissao}</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
 
         {step === 1 && (
           <div className="space-y-4">
+            {orgData && (
+              <Button variant="ghost" size="sm" onClick={() => { setStep(0); setProfissional(null); setSelectedServico(null); }}>
+                <ArrowLeft className="h-4 w-4 mr-1" /> Trocar profissional
+              </Button>
+            )}
             <h2 className="font-display text-xl font-bold">Escolha o serviço</h2>
+            {profissional && orgData && (
+              <p className="text-sm text-muted-foreground">Profissional: <strong>{profissional.nome}</strong></p>
+            )}
             <div className="space-y-3">
               {servicos.map((s) => (
                 <Card
@@ -323,6 +419,7 @@ export default function BookingPage() {
               <CardContent className="p-4 text-sm space-y-1">
                 <p><strong>{selectedServico?.nome_servico}</strong></p>
                 <p>{selectedDate && format(selectedDate, "dd/MM/yyyy")} às {selectedHorario}</p>
+                {profissional && <p className="text-muted-foreground">com {profissional.nome}</p>}
               </CardContent>
             </Card>
 
