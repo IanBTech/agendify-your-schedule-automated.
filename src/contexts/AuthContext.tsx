@@ -29,6 +29,8 @@ interface Profile {
   ultimo_login: string | null;
   status_conta: string;
   slug: string | null;
+  tipo_conta: string;
+  organization_id: string | null;
 }
 
 interface AuthContextType {

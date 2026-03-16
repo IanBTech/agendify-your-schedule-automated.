@@ -11,6 +11,7 @@ import LoginPage from "./pages/LoginPage";
 import CadastroPage from "./pages/CadastroPage";
 import BookingPage from "./pages/BookingPage";
 import DemoPage from "./pages/DemoPage";
+import InvitePage from "./pages/InvitePage";
 import DashboardLayout from "./components/DashboardLayout";
 import DashboardPage from "./pages/dashboard/DashboardPage";
 import AgendaPage from "./pages/dashboard/AgendaPage";
@@ -19,6 +20,7 @@ import PlanosPage from "./pages/dashboard/PlanosPage";
 import IndicacoesPage from "./pages/dashboard/IndicacoesPage";
 import FeedbackPage from "./pages/dashboard/FeedbackPage";
 import ConfiguracoesPage from "./pages/dashboard/ConfiguracoesPage";
+import EquipePage from "./pages/dashboard/EquipePage";
 import AdminPage from "./pages/dashboard/AdminPage";
 import NotFound from "./pages/NotFound";
 
@@ -36,6 +38,7 @@ const App = () => (
             <Route path="/login" element={<LoginPage />} />
             <Route path="/cadastro" element={<CadastroPage />} />
             <Route path="/book/:slug" element={<BookingPage />} />
+            <Route path="/invite/:token" element={<InvitePage />} />
             <Route path="/demo" element={<DemoPage />} />
             <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
               <Route index element={<DashboardPage />} />
@@ -45,6 +48,7 @@ const App = () => (
               <Route path="indicacoes" element={<IndicacoesPage />} />
               <Route path="feedback" element={<FeedbackPage />} />
               <Route path="configuracoes" element={<ConfiguracoesPage />} />
+              <Route path="equipe" element={<EquipePage />} />
               <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
             </Route>
             <Route path="*" element={<NotFound />} />
